@@ -40,7 +40,7 @@ public class PantallaPrincipalController implements Initializable {
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/alberto/views/PantallaCorreo.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/us/alberto/views/PantallaCorreo.fxml"));
             Parent root = fxmlLoader.load();
             stage.setTitle("Correo");
             stage.setScene(new Scene(root, 700, 580));

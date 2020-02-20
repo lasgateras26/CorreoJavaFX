@@ -6,9 +6,11 @@ module GestorCorreo {
     requires java.mail;
     requires javafx.web;
     requires commons.email;
-    opens alberto.views to javafx.fxml;
+
     exports us.alberto;
     exports us.alberto.logic;
     exports us.alberto.models;
     exports us.alberto.views;
+
+    opens us.alberto.views to javafx.fxml;
 }

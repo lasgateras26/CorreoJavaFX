@@ -10,7 +10,7 @@
 <?import javafx.scene.text.Font?>
 
 
-<AnchorPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="alberto.views.PantallaPrincipalController">
+<AnchorPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="us.alberto.views.PantallaPrincipalController">
    <children>
           <Button fx:id="buttonIniciarSesion" mnemonicParsing="false" onAction="#iniciarSesion" text="Iniciar Sesión" AnchorPane.leftAnchor="269.0" AnchorPane.topAnchor="317.0" />
           <Label prefHeight="27.0" prefWidth="75.0" text="Correo:" AnchorPane.leftAnchor="262.0" AnchorPane.rightAnchor="303.0" AnchorPane.topAnchor="142.0">
