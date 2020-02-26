@@ -11,6 +11,7 @@ import us.alberto.logic.Logica;
 import us.alberto.models.EmailMessage;
 import us.alberto.models.EmailTreeItem;
 
+import javax.mail.MessagingException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -63,9 +64,14 @@ public class PantallaCorreoController implements Initializable {
         mostrarWebView();
         Logica.getInstance().getMessage("albertoodaam@gmail.com", "lasgateras26");
         tableViewCorreos.setItems(Logica.getInstance().getListaMensajes());
-        TreeItem<String> raiz = new TreeItem<>();
-        raiz.getChildren().add(new EmailTreeItem("Mi GMail", null, null));
-
-        treeViewCuentas.setRoot(raiz);
+        EmailTreeItem item = null;
+        try {
+            item = Logica.getInstance().cargarCarpetas();
+        }
+        catch (MessagingException e) {
+            e.printStackTrace();
+        }
+        treeViewCuentas.setShowRoot(false);
+        treeViewCuentas.setRoot(item);
     }
 }

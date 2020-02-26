@@ -34,12 +34,12 @@
                                     <children>
                                         <TableView fx:id="tableViewCorreos" layoutX="10.0" layoutY="14.0" prefHeight="299.0" prefWidth="467.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                                             <columns>
-                                                <TableColumn prefWidth="75.0" text="Remitente">
+                                                <TableColumn prefWidth="500.0" text="Remitente">
                                                     <cellValueFactory>
                                                         <PropertyValueFactory property="remitente" />
                                                     </cellValueFactory>
                                                 </TableColumn>
-                                                <TableColumn prefWidth="75.0" text="Asunto">
+                                                <TableColumn prefWidth="400.0" text="Asunto">
                                                     <cellValueFactory>
                                                         <PropertyValueFactory property="asunto" />
                                                     </cellValueFactory>

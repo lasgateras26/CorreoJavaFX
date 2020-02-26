@@ -4,6 +4,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import us.alberto.models.EmailAccount;
 import us.alberto.models.EmailMessage;
+import us.alberto.models.EmailTreeItem;
+
 import javax.mail.*;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
@@ -85,5 +87,32 @@ public class Logica {
             e.printStackTrace();
         }
         return "";
+    }
+
+    public EmailTreeItem cargarCarpetas() throws MessagingException {
+        EmailTreeItem nodoPadre = new EmailTreeItem(null, null, null, null);
+        for (int i = 0; i < listaCuentas.size(); i++) {
+            EmailTreeItem itemCuenta = new EmailTreeItem(listaCuentas.get(i).getEmail(), null, listaCuentas.get(i).getStore(), listaCuentas.get(i));
+            nodoPadre.getChildren().add(itemCuenta);
+            try {
+                Folder[] vectorCarpetas = listaCuentas.get(i).getStore().getDefaultFolder().list();
+                itemCuenta.setExpanded(true);
+                rellenarCarpetas(vectorCarpetas, itemCuenta, listaCuentas.get(i));
+            } catch (MessagingException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        return nodoPadre;
+    }
+
+    public void rellenarCarpetas(Folder[] carpetas, EmailTreeItem itemCuenta, EmailAccount cuenta) throws MessagingException {
+        for (Folder folder : carpetas) {
+            EmailTreeItem item = new EmailTreeItem(folder.getName(), folder, cuenta.getStore(), cuenta);
+            itemCuenta.getChildren().add(item);
+            if (folder.list().length > 0) {
+                rellenarCarpetas(folder.list(), itemCuenta, cuenta);
+            }
+        }
     }
 }

@@ -1,11 +1,11 @@
 <component name="libraryTable">
   <library name="commons-email-1.5-sources">
     <CLASSES>
-      <root url="jar://$USER_HOME$/JAVA/Comoons-mail/commons-email-1.5.jar!/" />
+      <root url="jar://$USER_HOME$/JAVA/commons-email-1.5/commons-email-1.5.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
-      <root url="jar://$USER_HOME$/JAVA/Comoons-mail/commons-email-1.5-sources.jar!/" />
+      <root url="jar://$USER_HOME$/JAVA/commons-email-1.5/commons-email-1.5-sources.jar!/" />
     </SOURCES>
   </library>
 </component>
