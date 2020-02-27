@@ -1,14 +1,18 @@
 package us.alberto.logic;
 
+import com.sun.mail.util.MailSSLSocketFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.web.HTMLEditor;
 import us.alberto.models.EmailAccount;
 import us.alberto.models.EmailMessage;
 import us.alberto.models.EmailTreeItem;
 
 import javax.mail.*;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Properties;
 
 public class Logica {
@@ -130,6 +134,55 @@ public class Logica {
                 rellenarCarpetas(folder.list(), itemCuenta, emailAccount);
             }
         }
+    }
 
+    public void escribirCorreo(EmailAccount emailAccount, String emisor, String receptor, String asunto, HTMLEditor mensaje){
+        for(int i = 0; i < listaCuentas.size(); i++){
+            if(listaCuentas.get(i).getEmail().equals(emisor)){
+                emailAccount = getListaCuentas().get(i);
+            }
+        }
+        try{
+            Session session = getSession(emailAccount);
+            MimeMessage mimeMessage = new MimeMessage(session);
+            mimeMessage.setFrom(new InternetAddress(emisor));
+            mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(receptor));
+            mimeMessage.setSubject(asunto);
+            mimeMessage.setContent(mensaje.getHtmlText(), "text/html");
+            Transport.send(mimeMessage);
+        }
+        catch(MessagingException e){
+            e.printStackTrace();
+        }
+    }
+
+    public Session getSession(EmailAccount emailAccount) {
+        Properties properties = new Properties();
+        MailSSLSocketFactory msf = null;
+        try{
+            msf = new MailSSLSocketFactory();
+        }
+        catch(GeneralSecurityException e){
+            e.printStackTrace();
+        }
+        msf.setTrustAllHosts(true);
+        properties.put("mail.imaps.ssl.trust", "*");
+        properties.put("mail.imaps.ssl.socketFactory", msf);
+        properties.put("mail.smtp.auth", "true");
+        properties.put("mail.smtp.starttls.enable", "true");
+        properties.put("mail.smtp.host", "smtp.gmail.com");
+        properties.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+        properties.put("mail.smtp.port", "587");
+
+        String email = emailAccount.getEmail();
+        String password = emailAccount.getPassword();
+
+        Session session = Session.getInstance(properties, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(email, password);
+            }
+        });
+        return session;
     }
 }

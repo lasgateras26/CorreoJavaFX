@@ -56,7 +56,7 @@
                                                 <Button fx:id="buttonReenviar" mnemonicParsing="false" text="Reenviar" />
                                                 <Button fx:id="buttonResponder" mnemonicParsing="false" text="Responder" />
                                                 <Button fx:id="buttonEliminar" mnemonicParsing="false" text="Eliminar" />
-                                                <Button fx:id="buttonRedactar" mnemonicParsing="false" text="Redactar" />
+                                                <Button fx:id="buttonRedactar" mnemonicParsing="false" onAction="#redactarCorreo" text="Redactar" />
                                             </buttons>
                                         </ButtonBar>
                                     </children>

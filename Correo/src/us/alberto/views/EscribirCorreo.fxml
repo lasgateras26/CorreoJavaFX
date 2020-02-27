@@ -14,8 +14,8 @@
       <Label layoutX="51.0" layoutY="128.0" text="Asunto:" AnchorPane.leftAnchor="51.0" AnchorPane.topAnchor="128.0" />
       <TextField fx:id="textFieldAsunto" layoutX="136.0" layoutY="124.0" prefHeight="25.0" prefWidth="367.0" AnchorPane.leftAnchor="136.0" AnchorPane.rightAnchor="208.0" />
       <HTMLEditor fx:id="mensaje" htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" layoutX="51.0" layoutY="175.0" prefHeight="261.0" prefWidth="616.0" AnchorPane.bottomAnchor="53.0" AnchorPane.leftAnchor="51.0" AnchorPane.rightAnchor="51.0" AnchorPane.topAnchor="175.0" />
-      <Button fx:id="btnEnviar" layoutX="295.0" layoutY="436.0" mnemonicParsing="false" text="Enviar" AnchorPane.bottomAnchor="28.0" AnchorPane.leftAnchor="295.0" />
-      <Button fx:id="btnCancelar" layoutX="634.0" layoutY="436.0" mnemonicParsing="false" text="Cancelar" AnchorPane.bottomAnchor="28.0" AnchorPane.rightAnchor="15.0" />
+      <Button fx:id="btnEnviar" layoutX="295.0" layoutY="436.0" mnemonicParsing="false" onAction="#enviarCorreo" text="Enviar" AnchorPane.bottomAnchor="28.0" AnchorPane.leftAnchor="295.0" />
+      <Button fx:id="btnCancelar" layoutX="634.0" layoutY="436.0" mnemonicParsing="false" onAction="#cancelarCorreo" text="Cancelar" AnchorPane.bottomAnchor="28.0" AnchorPane.rightAnchor="15.0" />
       <ComboBox fx:id="comboBoxCuentas" layoutX="136.0" layoutY="24.0" prefHeight="25.0" prefWidth="367.0" AnchorPane.leftAnchor="136.0" AnchorPane.rightAnchor="208.0" />
    </children>
 </AnchorPane>
