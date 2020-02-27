@@ -63,8 +63,10 @@ public class PantallaCorreoController implements Initializable {
         mostrarWebView();
         Logica.getInstance().getMessage("albertoodaam@gmail.com", "lasgateras26");
         tableViewCorreos.setItems(Logica.getInstance().getListaMensajes());
+        /*
         EmailTreeItem item = Logica.getInstance().cargarCarpetas();
         treeViewCuentas.setShowRoot(false);
         treeViewCuentas.setRoot(item);
+         */
     }
 }
