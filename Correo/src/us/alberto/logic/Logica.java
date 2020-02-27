@@ -18,10 +18,6 @@ public class Logica {
     private ObservableList<EmailMessage> listaMensajes = FXCollections.observableArrayList();
     private ObservableList<EmailAccount> listaCuentas = FXCollections.observableArrayList();
 
-    private EmailAccount emailAccount;
-    private Store store;
-    private MimeMessage parser;
-
     private Logica() {
     }
 
@@ -55,7 +51,27 @@ public class Logica {
         }
     }
 
-    public ObservableList getListaMensajes() {
+    public ObservableList<EmailMessage> cargarMensajes(Folder folder) {
+        listaMensajes.clear();
+        try {
+            if (folder != null && folder.getType() == 3) {
+                if (!folder.isOpen())
+                    folder.open(Folder.READ_WRITE);
+
+                Message[] vectorMensajes = folder.getMessages();
+                for (int i = 0; i < vectorMensajes.length; i++) {
+                    EmailMessage mensaje = new EmailMessage(vectorMensajes[i]);
+                    listaMensajes.add(mensaje);
+                }
+            }
+        }
+        catch (MessagingException e) {
+            e.printStackTrace();
+        }
+        return listaMensajes;
+    }
+
+    public ObservableList<EmailMessage> getListaMensajes() {
         return listaMensajes;
     }
 
@@ -63,7 +79,7 @@ public class Logica {
         listaCuentas.add(cuenta);
     }
 
-    public ObservableList getListaCuentas() {
+    public ObservableList<EmailAccount> getListaCuentas() {
         return listaCuentas;
     }
 
@@ -89,10 +105,10 @@ public class Logica {
         return "";
     }
 
-    public EmailTreeItem cargarCarpetas() throws MessagingException {
+    public EmailTreeItem cargarCarpetas() {
         EmailTreeItem nodoPadre = new EmailTreeItem(null, null, null, null);
         for (int i = 0; i < listaCuentas.size(); i++) {
-            EmailTreeItem itemCuenta = new EmailTreeItem(listaCuentas.get(i).getEmail(), null, listaCuentas.get(i).getStore(), listaCuentas.get(i));
+            EmailTreeItem itemCuenta = new EmailTreeItem(listaCuentas.get(i).getEmail(), listaCuentas.get(i), null, listaCuentas.get(i).getStore());
             nodoPadre.getChildren().add(itemCuenta);
             try {
                 Folder[] vectorCarpetas = listaCuentas.get(i).getStore().getDefaultFolder().list();
@@ -106,13 +122,14 @@ public class Logica {
         return nodoPadre;
     }
 
-    public void rellenarCarpetas(Folder[] carpetas, EmailTreeItem itemCuenta, EmailAccount cuenta) throws MessagingException {
-        for (Folder folder : carpetas) {
-            EmailTreeItem item = new EmailTreeItem(folder.getName(), folder, cuenta.getStore(), cuenta);
+    public void rellenarCarpetas(Folder[] vectorCarpetas, EmailTreeItem itemCuenta, EmailAccount emailAccount) throws MessagingException {
+        for (Folder folder : vectorCarpetas) {
+            EmailTreeItem item = new EmailTreeItem(folder.getName(), emailAccount, folder, emailAccount.getStore());
             itemCuenta.getChildren().add(item);
             if (folder.list().length > 0) {
-                rellenarCarpetas(folder.list(), itemCuenta, cuenta);
+                rellenarCarpetas(folder.list(), itemCuenta, emailAccount);
             }
         }
+
     }
 }
