@@ -13,7 +13,9 @@ import us.alberto.logic.Logica;
 import us.alberto.models.EmailMessage;
 import us.alberto.models.EmailTreeItem;
 
+import javax.mail.MessagingException;
 import java.net.URL;
+import java.security.GeneralSecurityException;
 import java.util.ResourceBundle;
 
 public class PantallaCorreoController extends BaseController implements Initializable {
@@ -74,10 +76,42 @@ public class PantallaCorreoController extends BaseController implements Initiali
         mostrarWebView();
         Logica.getInstance().getMessage("albertoodaam@gmail.com", "lasgateras26");
         tableViewCorreos.setItems(Logica.getInstance().getListaMensajes());
-        /*
-        EmailTreeItem item = Logica.getInstance().cargarCarpetas();
-        treeViewCuentas.setShowRoot(false);
-        treeViewCuentas.setRoot(item);
-         */
+
+        try{
+            treeViewCuentas.setRoot(Logica.getInstance().actualizarTree());
+        }
+        catch (GeneralSecurityException e){
+            e.printStackTrace();
+        }
+        catch(MessagingException e){
+            e.printStackTrace();
+        }
+        treeViewCuentas.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<String>>() {
+            @Override
+            public void changed(ObservableValue<? extends TreeItem<String>> observableValue, TreeItem<String> stringTreeItem, TreeItem<String> t1) {
+                System.out.println(treeViewCuentas.getSelectionModel().getSelectedItem().toString());
+                Logica.getInstance().cargarListaCorreos(((EmailTreeItem) t1).getFolder());
+            }
+        });
+        treeViewCuentas.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<EmailMessage>() {
+            @Override
+            public void changed(ObservableValue<? extends EmailMessage> observable, EmailMessage oldValue, EmailMessage newValue) {
+                try {
+                    if (newValue != null)
+                        webViewMensaje.getEngine().loadContent(newValue.getContenido());
+                    else
+                        webViewMensaje.getEngine().loadContent("");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        try {
+            Logica.getInstance().actualizarTree();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }
 }

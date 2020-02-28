@@ -3,6 +3,7 @@ package us.alberto.logic;
 import com.sun.mail.util.MailSSLSocketFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.TreeItem;
 import javafx.scene.web.HTMLEditor;
 import us.alberto.models.EmailAccount;
 import us.alberto.models.EmailMessage;
@@ -21,6 +22,10 @@ public class Logica {
 
     private ObservableList<EmailMessage> listaMensajes = FXCollections.observableArrayList();
     private ObservableList<EmailAccount> listaCuentas = FXCollections.observableArrayList();
+
+    private Store store;
+
+    private TreeItem nodoRaiz = new TreeItem("Cuentas");
 
     private Logica() {
     }
@@ -68,8 +73,7 @@ public class Logica {
                     listaMensajes.add(mensaje);
                 }
             }
-        }
-        catch (MessagingException e) {
+        } catch (MessagingException e) {
             e.printStackTrace();
         }
         return listaMensajes;
@@ -136,13 +140,13 @@ public class Logica {
         }
     }
 
-    public void escribirCorreo(EmailAccount emailAccount, String emisor, String receptor, String asunto, HTMLEditor mensaje){
-        for(int i = 0; i < listaCuentas.size(); i++){
-            if(listaCuentas.get(i).getEmail().equals(emisor)){
+    public void escribirCorreo(EmailAccount emailAccount, String emisor, String receptor, String asunto, HTMLEditor mensaje) {
+        for (int i = 0; i < listaCuentas.size(); i++) {
+            if (listaCuentas.get(i).getEmail().equals(emisor)) {
                 emailAccount = getListaCuentas().get(i);
             }
         }
-        try{
+        try {
             Session session = getSession(emailAccount);
             MimeMessage mimeMessage = new MimeMessage(session);
             mimeMessage.setFrom(new InternetAddress(emisor));
@@ -150,19 +154,17 @@ public class Logica {
             mimeMessage.setSubject(asunto);
             mimeMessage.setContent(mensaje.getHtmlText(), "text/html");
             Transport.send(mimeMessage);
-        }
-        catch(MessagingException e){
+        } catch (MessagingException e) {
             e.printStackTrace();
         }
     }
 
-    public Session getSession(EmailAccount emailAccount) {
+    private Session getSession(EmailAccount emailAccount) {
         Properties properties = new Properties();
         MailSSLSocketFactory msf = null;
-        try{
+        try {
             msf = new MailSSLSocketFactory();
-        }
-        catch(GeneralSecurityException e){
+        } catch (GeneralSecurityException e) {
             e.printStackTrace();
         }
         msf.setTrustAllHosts(true);
@@ -184,5 +186,97 @@ public class Logica {
             }
         });
         return session;
+    }
+
+
+    public void cargarListaCorreos(Folder folder) {
+        listaMensajes.clear();
+
+        if (folder != null) {
+            try {
+                // IMAPFolder folder = (IMAPFolder) store.getFolder("[Gmail]/Todos"); el final es la ruta
+                //IMAPFolder folder = (IMAPFolder) store.getFolder(folderString);
+                if (!folder.isOpen())
+                    folder.open(Folder.READ_WRITE);
+                Message[] messages = folder.getMessages();
+                EmailMessage correo;
+                System.out.println(messages[0].toString());
+                System.out.println(folder.getFullName());
+                for (int i = 0; i < messages.length; i++) {
+                    correo = new EmailMessage(messages[i]);
+                    System.out.println(correo.toString());
+                    listaMensajes.add(correo);
+                }
+            } catch (NoSuchProviderException e) {
+                //e.printStackTrace();
+            } catch (MessagingException e) {
+                //e.printStackTrace();
+            } catch (ArrayIndexOutOfBoundsException e) {
+                //e.printStackTrace();
+            }
+        }
+
+    }
+
+
+    private EmailTreeItem cargaCarpetas(EmailAccount usuarioCorreo1, Folder carpeta, EmailTreeItem rootItem) throws MessagingException, GeneralSecurityException {
+        Folder[] folders = null;
+        if (store != null) {
+
+            if (carpeta == null) {
+                folders = store.getDefaultFolder().list(); //todas las del sistema
+                System.out.println("La carpeta " + folders.toString());
+            } else {
+                folders = carpeta.list();
+                System.out.println("La carpeta " + carpeta.getName());
+            //carpetas de la carpeta en la que estoy
+            }
+            if (rootItem == null) {
+                rootItem = new EmailTreeItem(usuarioCorreo1.getEmail(), usuarioCorreo1, carpeta);
+                //System.out.println("La carpeta " + rootItem.toString() );
+            } else {
+                // System.out.println("cojo el delrecursirvo");
+            }
+
+            rootItem.setExpanded(true);
+            for (Folder folder : folders) {
+                //Añadiendo carpetas al tree
+                EmailTreeItem item = new EmailTreeItem(folder.getName(), usuarioCorreo1, folder);
+                if ((folder.getType() & Folder.HOLDS_FOLDERS) != 0
+                        && folder.list().length > 0) { //si tiene carpetas
+                    cargaCarpetas(usuarioCorreo1, folder, item);
+                } else {
+                    //System.out.println("La carpeta " + folder.getName() + " no tiene hijos.");
+                }
+                rootItem.getChildren().add(item);
+            }
+        }
+        return rootItem;
+    }
+
+    public void iniciarSesion(EmailAccount usuarioCorreo1) throws GeneralSecurityException, MessagingException {
+        Properties prop = new Properties();
+        prop.setProperty("mail.store.protocol", "imaps");
+        MailSSLSocketFactory sf = new MailSSLSocketFactory();
+        sf.setTrustAllHosts(true);
+        prop.put("mail.imaps.ssl.trust", "*");
+        prop.put("mail.imaps.ssl.socketFactory", sf);
+        store = usuarioCorreo1.getStore();
+        Session session = Session.getDefaultInstance(prop, null);
+        store = session.getStore("imaps");
+        store.connect("imap.googlemail.com", usuarioCorreo1.getEmail(), usuarioCorreo1.getPassword());
+    }
+
+    public TreeItem actualizarTree() throws GeneralSecurityException, MessagingException {
+        nodoRaiz.getChildren().clear();
+        //nodoRaiz = new TreeItem("Correos");
+        for (int i = 0; i < getListaCuentas().size(); i++) {
+            iniciarSesion(getListaCuentas().get(i));
+            nodoRaiz.setExpanded(true);
+            nodoRaiz.getChildren().add((cargaCarpetas(getListaCuentas().get(i), null, null)));
+        }
+
+        return nodoRaiz;
+        //devolvemos el nodo raiz para que el controller pueda pasarlselo al treeview
     }
 }

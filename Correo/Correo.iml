@@ -9,7 +9,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="javafx-swt" level="project" />
     <orderEntry type="library" name="activation" level="project" />
-    <orderEntry type="library" name="commons-email-1.5-sources" level="application" />
     <orderEntry type="library" name="controlsfx-11.0.0" level="application" />
+    <orderEntry type="library" name="commons-email-1.5-sources" level="project" />
   </component>
 </module>

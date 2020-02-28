@@ -12,6 +12,17 @@ public class EmailTreeItem extends TreeItem<String> {
     private EmailAccount emailAccount;
     private Store store;
 
+    public EmailTreeItem(String name, EmailAccount emailAccount) {
+        this.name = name;
+        this.emailAccount = emailAccount;
+    }
+
+    public EmailTreeItem(String name,  EmailAccount emailAccount, Folder folder) {
+        this.name = name;
+        this.folder = folder;
+        this.emailAccount = emailAccount;
+    }
+
     public EmailTreeItem(String name, EmailAccount emailAccount, Folder folder, Store store) {
         super(name);
         this.name = name;
