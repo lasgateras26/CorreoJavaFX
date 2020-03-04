@@ -6,6 +6,7 @@ module GestorCorreo {
     requires java.mail;
     requires javafx.web;
     requires commons.email;
+    requires org.controlsfx.controls;
 
     exports us.alberto;
     exports us.alberto.logic;

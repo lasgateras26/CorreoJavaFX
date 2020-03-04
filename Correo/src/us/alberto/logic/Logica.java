@@ -33,22 +33,7 @@ public class Logica {
         return INSTANCE;
     }
 
-    public Logica() {
-        props.put("mail.smtp.user", "username");
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "25");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.EnableSSL.enable", "true");
-
-        props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-        props.setProperty("mail.smtp.socketFactory.fallback", "false");
-        props.setProperty("mail.smtp.port", "465");
-        props.setProperty("mail.smtp.socketFactory.port", "465");
-
-        listaCuentas = FXCollections.observableArrayList();
-        listaMensajes = FXCollections.observableArrayList();
-        emailTreeItem = new EmailTreeItem("", null, null);
+    private Logica() {
     }
 
     public void getMessage(String email, String password) {
@@ -110,31 +95,6 @@ public class Logica {
         return emailTreeItem;
     }
 
-    public Folder cargarEmail(EmailAccount cuenta){
-        Properties props;
-        try {
-            props = new Properties();
-            props.put("mail.imap.ssl.checkserveridentity", "false");
-            props.put ("mail.imaps.ssl.trust", "*");
-            getSession(cuenta);
-            store = session.getStore("imaps");
-            store.connect("smtp.gmail.com", cuenta.getEmail(), cuenta.getPassword());
-            return store.getDefaultFolder();
-        }catch(MessagingException e){
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public Folder getFolder(){
-        try {
-            return store.getDefaultFolder();
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public String getMessageContent(EmailMessage correo) throws MessagingException {
         Message message = correo.getMensaje();
         try {
@@ -155,32 +115,6 @@ public class Logica {
             e.printStackTrace();
         }
         return "";
-    }
-
-    public TreeItem crearTreeView(EmailAccount cuenta,Folder folder) {
-        EmailTreeItem emailroot=null;
-        try {
-            emailroot = new EmailTreeItem(cuenta.getEmail(), cuenta, Logica.getInstance().getFolder());
-            getFolders(((EmailTreeItem)emailroot).getFolder().list(), (EmailTreeItem)emailroot,cuenta);
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        }
-
-        return emailroot;
-
-    }
-    public void getFolders(Folder[] folders,EmailTreeItem objeto,EmailAccount cuenta) {
-        for (Folder folder : folders) {
-            EmailTreeItem emailTreeItem = new EmailTreeItem(folder.getName(),cuenta, folder);
-            objeto.getChildren().add(emailTreeItem);
-            try {
-                if(folder.getType() == Folder.HOLDS_FOLDERS){
-                    getFolders(folder.list(), emailTreeItem,cuenta);
-                }
-            } catch (MessagingException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public void escribirCorreo(EmailAccount emailAccount, String emisor, String receptor, String asunto, HTMLEditor mensaje) {
@@ -231,64 +165,28 @@ public class Logica {
         return session;
     }
 
-    public void borrarCuenta(EmailAccount emailAccount) {
-        listaCuentas.remove(emailAccount);
-        emailTreeItem = new EmailTreeItem("", null, null);
-        setAccounts();
-    }
-
-    public void setAccounts() {
-        for (EmailAccount emailAccount : listaCuentas) {
-            Folder f = loadMail(emailAccount);
-            emailTreeItem.getChildren().add(getTreeItems(emailAccount, f));
-        }
-    }
-
-    private Folder loadMail(EmailAccount mailAccount) {
+    public boolean conexion(EmailAccount emailAccount) {
+        boolean respuesta;
+        listaMensajes.clear();
+        Properties props = new Properties();
+        props.setProperty("mail.store.protocol", "imaps");
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.user", emailAccount.getEmail());
+        props.put("mail.smtp.clave", emailAccount.getPassword());
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.port", "587");
+        Session sesion = Session.getInstance(props);
         try {
-            createSession(mailAccount);
-            store = session.getStore("imaps");
-            store.connect("imap.gmail.com", mailAccount.getEmail(), mailAccount.getPassword());
-            return store.getDefaultFolder();
+            store = sesion.getStore("imaps");
+            store.connect("imap.googlemail.com", emailAccount.getEmail(), emailAccount.getPassword());
+            emailAccount.setStore(store);
+            respuesta = true;
+            return respuesta;
         } catch (MessagingException e) {
             e.printStackTrace();
-            return null;
-        }
-    }
-
-    private void createSession(EmailAccount mailAccount) {
-        session = null;
-        String cuenta = mailAccount.getEmail();
-        String pass = mailAccount.getPassword();
-        Authenticator auth = new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(cuenta, pass);
-            }
-        };
-        session = Session.getInstance(props, auth);
-    }
-
-    private EmailTreeItem getTreeItems(EmailAccount mailAccount, Folder folder) {
-        try {
-            EmailTreeItem root = new EmailTreeItem(mailAccount.getEmail(), mailAccount, folder);
-            getFolder(root.getFolder().list(), root, mailAccount);
-            root.setExpanded(true);
-            return root;
-        } catch (MessagingException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private void getFolder(Folder[] folders, EmailTreeItem item, EmailAccount mailAccount) throws MessagingException {
-        for (Folder folder : folders) {
-            EmailTreeItem treeItem = new EmailTreeItem(folder.getName(), mailAccount, folder);
-            item.getChildren().add(treeItem);
-            if (folder.getType() == Folder.HOLDS_FOLDERS) {
-                treeItem.setExpanded(true);
-                getFolder(folder.list(), treeItem, mailAccount);
-            }
+            respuesta = false;
+            return respuesta;
         }
     }
 }

@@ -81,22 +81,5 @@ public class PantallaCorreoController extends BaseController implements Initiali
         mostrarWebView();
         Logica.getInstance().getMessage("albertoodaam@gmail.com", "lasgateras26");
         tableViewCorreos.setItems(Logica.getInstance().getListaMensajes());
-
-        treeViewCuentas.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<String>>() {
-            @Override
-            public void changed(ObservableValue<? extends TreeItem<String>> observableValue, TreeItem<String> oldValue, TreeItem<String> newValue) {
-                EmailTreeItem newmti = (EmailTreeItem) newValue;
-                EmailTreeItem oldmti = (EmailTreeItem) oldValue;
-
-                if(oldmti != null && oldmti.getFolder().isOpen()){
-                    try {
-                        oldmti.getFolder().close(true);
-                    } catch (MessagingException e) {
-                        e.printStackTrace();
-                    }
-                }
-                //refrescarTabla(newmti);
-            }
-        });
     }
 }
