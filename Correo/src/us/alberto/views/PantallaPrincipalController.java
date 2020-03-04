@@ -44,12 +44,13 @@ public class PantallaPrincipalController extends BaseController implements Initi
         String contraseña = passwordField.getText();
         EmailAccount emailAccount = new EmailAccount(usuario, contraseña);
         boolean comprobar = Logica.getInstance().conexion(emailAccount);
-        if(comprobar == true){
+        if(comprobar){
             if(emailAccount.getEmail().equals(usuario) && emailAccount.getPassword().equals(contraseña)){
                 PantallaCorreoController correo = (PantallaCorreoController) cargarDialogo("PantallaCorreo.fxml", 700, 580);
                 correo.getStage().setTitle("Correo");
                 correo.abrirDialogo(true);
                 Logica.getInstance().añadirCuenta(emailAccount);
+                System.out.println(Logica.getInstance().getListaCuentas().size());
             }
         }
         else{

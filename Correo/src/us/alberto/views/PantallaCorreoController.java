@@ -12,11 +12,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import us.alberto.logic.Logica;
 import us.alberto.models.EmailMessage;
-import us.alberto.models.EmailTreeItem;
-
-import javax.mail.MessagingException;
 import java.net.URL;
-import java.security.GeneralSecurityException;
 import java.util.ResourceBundle;
 
 public class PantallaCorreoController extends BaseController implements Initializable {
@@ -26,6 +22,9 @@ public class PantallaCorreoController extends BaseController implements Initiali
     private Stage stage = new Stage();
 
     TreeItem raiz;
+
+    @FXML
+    private Button btnCuentas;
 
     @FXML
     private Button buttonRedactar;
@@ -52,6 +51,11 @@ public class PantallaCorreoController extends BaseController implements Initiali
     private WebView webViewMensaje;
 
     private WebEngine webEngine;
+
+    @FXML
+    void gestionarCuentas(ActionEvent event) {
+
+    }
 
     @FXML
     void redactarCorreo(ActionEvent event) {
