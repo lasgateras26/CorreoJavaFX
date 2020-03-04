@@ -189,4 +189,8 @@ public class Logica {
             return respuesta;
         }
     }
+
+    public void borrarCuenta(EmailAccount emailAccount){
+        listaCuentas.remove(emailAccount);
+    }
 }

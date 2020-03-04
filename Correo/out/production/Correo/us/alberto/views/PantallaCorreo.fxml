@@ -16,8 +16,8 @@
             <items>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                     <children>
-                        <TreeView fx:id="treeViewCuentas" layoutX="4.0" layoutY="52.0" prefHeight="497.0" prefWidth="200.0" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="4.0" AnchorPane.rightAnchor="3.0" AnchorPane.topAnchor="52.0" />
-                  <Button layoutX="23.0" layoutY="14.0" mnemonicParsing="false" text="Añadir Cuenta" />
+                        <TreeView fx:id="treeViewCuentas" layoutX="4.0" layoutY="53.0" prefHeight="496.0" prefWidth="264.0" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="4.0" AnchorPane.rightAnchor="3.0" AnchorPane.topAnchor="53.0" />
+                  <Button fx:id="btnCuentas" layoutX="23.0" layoutY="14.0" mnemonicParsing="false" onAction="#gestionarCuentas" text="Cuentas" AnchorPane.leftAnchor="23.0" AnchorPane.topAnchor="14.0" />
                     </children>
                 </AnchorPane>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">

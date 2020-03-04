@@ -54,7 +54,9 @@ public class PantallaCorreoController extends BaseController implements Initiali
 
     @FXML
     void gestionarCuentas(ActionEvent event) {
-
+        CuentasController cuentas = (CuentasController) cargarDialogo("cuentas.fxml", 600, 600);
+        cuentas.getStage().setTitle("Gestionar Cuentas");
+        cuentas.abrirDialogo(true);
     }
 
     @FXML
