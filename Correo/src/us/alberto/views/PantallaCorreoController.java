@@ -2,6 +2,7 @@ package us.alberto.views;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -20,7 +21,11 @@ import java.util.ResourceBundle;
 
 public class PantallaCorreoController extends BaseController implements Initializable {
 
+    ObservableList<EmailMessage> listaCorreos;
+
     private Stage stage = new Stage();
+
+    TreeItem raiz;
 
     @FXML
     private Button buttonRedactar;
@@ -76,42 +81,5 @@ public class PantallaCorreoController extends BaseController implements Initiali
         mostrarWebView();
         Logica.getInstance().getMessage("albertoodaam@gmail.com", "lasgateras26");
         tableViewCorreos.setItems(Logica.getInstance().getListaMensajes());
-
-        try{
-            treeViewCuentas.setRoot(Logica.getInstance().actualizarTree());
-        }
-        catch (GeneralSecurityException e){
-            e.printStackTrace();
-        }
-        catch(MessagingException e){
-            e.printStackTrace();
-        }
-        treeViewCuentas.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<String>>() {
-            @Override
-            public void changed(ObservableValue<? extends TreeItem<String>> observableValue, TreeItem<String> stringTreeItem, TreeItem<String> t1) {
-                System.out.println(treeViewCuentas.getSelectionModel().getSelectedItem().toString());
-                Logica.getInstance().cargarListaCorreos(((EmailTreeItem) t1).getFolder());
-            }
-        });
-        treeViewCuentas.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<EmailMessage>() {
-            @Override
-            public void changed(ObservableValue<? extends EmailMessage> observable, EmailMessage oldValue, EmailMessage newValue) {
-                try {
-                    if (newValue != null)
-                        webViewMensaje.getEngine().loadContent(newValue.getContenido());
-                    else
-                        webViewMensaje.getEngine().loadContent("");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        try {
-            Logica.getInstance().actualizarTree();
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        }
     }
 }

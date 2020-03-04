@@ -12,7 +12,6 @@ public class EmailMessage {
 
     private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     private Message message;
-    private MimeMessage parser;
 
     public EmailMessage(Message m) {
         this.message = m;

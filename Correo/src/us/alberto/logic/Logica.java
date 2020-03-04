@@ -23,9 +23,11 @@ public class Logica {
     private ObservableList<EmailMessage> listaMensajes = FXCollections.observableArrayList();
     private ObservableList<EmailAccount> listaCuentas = FXCollections.observableArrayList();
 
-    private Store store;
+    private Session session = null;
+    private Store store = null;
 
-    private TreeItem nodoRaiz = new TreeItem("Cuentas");
+    private TreeItem treeItem;
+    private EmailTreeItem emailTreeItem;
 
     private Logica() {
     }
@@ -91,6 +93,41 @@ public class Logica {
         return listaCuentas;
     }
 
+    public  EmailTreeItem getTree(){
+        return emailTreeItem;
+    }
+
+    public Folder cargarEmail(EmailAccount cuenta){
+        Properties props;
+        try {
+            props = new Properties();
+            props.put("mail.imap.ssl.checkserveridentity", "false");
+            props.put ("mail.imaps.ssl.trust", "*");
+            getSession(cuenta);
+            store = session.getStore("imaps");
+            store.connect("smtp.gmail.com", cuenta.getEmail(), cuenta.getPassword());
+            return store.getDefaultFolder();
+        }catch(MessagingException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Folder getFolder(){
+        try {
+            return store.getDefaultFolder();
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void rootcreate(EmailAccount cuenta){
+        Folder f = cargarEmail(cuenta);
+        treeItem.getChildren().add(crearTreeView(cuenta, f));
+
+    }
+
     public String getMessageContent(EmailMessage correo) throws MessagingException {
         Message message = correo.getMensaje();
         try {
@@ -113,29 +150,28 @@ public class Logica {
         return "";
     }
 
-    public EmailTreeItem cargarCarpetas() {
-        EmailTreeItem nodoPadre = new EmailTreeItem(null, null, null, null);
-        for (int i = 0; i < listaCuentas.size(); i++) {
-            EmailTreeItem itemCuenta = new EmailTreeItem(listaCuentas.get(i).getEmail(), listaCuentas.get(i), null, listaCuentas.get(i).getStore());
-            nodoPadre.getChildren().add(itemCuenta);
+    public TreeItem crearTreeView(EmailAccount cuenta,Folder folder) {
+        EmailTreeItem emailroot=null;
+        try {
+            emailroot = new EmailTreeItem(cuenta.getEmail(), cuenta, Logica.getInstance().getFolder());
+            getFolders(((EmailTreeItem)emailroot).getFolder().list(), (EmailTreeItem)emailroot,cuenta);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+
+        return emailroot;
+
+    }
+    public void getFolders(Folder[] folders,EmailTreeItem objeto,EmailAccount cuenta) {
+        for (Folder folder : folders) {
+            EmailTreeItem emailTreeItem = new EmailTreeItem(folder.getName(),cuenta, folder);
+            objeto.getChildren().add(emailTreeItem);
             try {
-                Folder[] vectorCarpetas = listaCuentas.get(i).getStore().getDefaultFolder().list();
-                itemCuenta.setExpanded(true);
-                rellenarCarpetas(vectorCarpetas, itemCuenta, listaCuentas.get(i));
+                if(folder.getType() == Folder.HOLDS_FOLDERS){
+                    getFolders(folder.list(), emailTreeItem,cuenta);
+                }
             } catch (MessagingException e) {
                 e.printStackTrace();
-                return null;
-            }
-        }
-        return nodoPadre;
-    }
-
-    public void rellenarCarpetas(Folder[] vectorCarpetas, EmailTreeItem itemCuenta, EmailAccount emailAccount) throws MessagingException {
-        for (Folder folder : vectorCarpetas) {
-            EmailTreeItem item = new EmailTreeItem(folder.getName(), emailAccount, folder, emailAccount.getStore());
-            itemCuenta.getChildren().add(item);
-            if (folder.list().length > 0) {
-                rellenarCarpetas(folder.list(), itemCuenta, emailAccount);
             }
         }
     }
@@ -186,97 +222,5 @@ public class Logica {
             }
         });
         return session;
-    }
-
-
-    public void cargarListaCorreos(Folder folder) {
-        listaMensajes.clear();
-
-        if (folder != null) {
-            try {
-                // IMAPFolder folder = (IMAPFolder) store.getFolder("[Gmail]/Todos"); el final es la ruta
-                //IMAPFolder folder = (IMAPFolder) store.getFolder(folderString);
-                if (!folder.isOpen())
-                    folder.open(Folder.READ_WRITE);
-                Message[] messages = folder.getMessages();
-                EmailMessage correo;
-                System.out.println(messages[0].toString());
-                System.out.println(folder.getFullName());
-                for (int i = 0; i < messages.length; i++) {
-                    correo = new EmailMessage(messages[i]);
-                    System.out.println(correo.toString());
-                    listaMensajes.add(correo);
-                }
-            } catch (NoSuchProviderException e) {
-                //e.printStackTrace();
-            } catch (MessagingException e) {
-                //e.printStackTrace();
-            } catch (ArrayIndexOutOfBoundsException e) {
-                //e.printStackTrace();
-            }
-        }
-
-    }
-
-
-    private EmailTreeItem cargaCarpetas(EmailAccount usuarioCorreo1, Folder carpeta, EmailTreeItem rootItem) throws MessagingException, GeneralSecurityException {
-        Folder[] folders = null;
-        if (store != null) {
-
-            if (carpeta == null) {
-                folders = store.getDefaultFolder().list(); //todas las del sistema
-                System.out.println("La carpeta " + folders.toString());
-            } else {
-                folders = carpeta.list();
-                System.out.println("La carpeta " + carpeta.getName());
-            //carpetas de la carpeta en la que estoy
-            }
-            if (rootItem == null) {
-                rootItem = new EmailTreeItem(usuarioCorreo1.getEmail(), usuarioCorreo1, carpeta);
-                //System.out.println("La carpeta " + rootItem.toString() );
-            } else {
-                // System.out.println("cojo el delrecursirvo");
-            }
-
-            rootItem.setExpanded(true);
-            for (Folder folder : folders) {
-                //Añadiendo carpetas al tree
-                EmailTreeItem item = new EmailTreeItem(folder.getName(), usuarioCorreo1, folder);
-                if ((folder.getType() & Folder.HOLDS_FOLDERS) != 0
-                        && folder.list().length > 0) { //si tiene carpetas
-                    cargaCarpetas(usuarioCorreo1, folder, item);
-                } else {
-                    //System.out.println("La carpeta " + folder.getName() + " no tiene hijos.");
-                }
-                rootItem.getChildren().add(item);
-            }
-        }
-        return rootItem;
-    }
-
-    public void iniciarSesion(EmailAccount usuarioCorreo1) throws GeneralSecurityException, MessagingException {
-        Properties prop = new Properties();
-        prop.setProperty("mail.store.protocol", "imaps");
-        MailSSLSocketFactory sf = new MailSSLSocketFactory();
-        sf.setTrustAllHosts(true);
-        prop.put("mail.imaps.ssl.trust", "*");
-        prop.put("mail.imaps.ssl.socketFactory", sf);
-        store = usuarioCorreo1.getStore();
-        Session session = Session.getDefaultInstance(prop, null);
-        store = session.getStore("imaps");
-        store.connect("imap.googlemail.com", usuarioCorreo1.getEmail(), usuarioCorreo1.getPassword());
-    }
-
-    public TreeItem actualizarTree() throws GeneralSecurityException, MessagingException {
-        nodoRaiz.getChildren().clear();
-        //nodoRaiz = new TreeItem("Correos");
-        for (int i = 0; i < getListaCuentas().size(); i++) {
-            iniciarSesion(getListaCuentas().get(i));
-            nodoRaiz.setExpanded(true);
-            nodoRaiz.getChildren().add((cargaCarpetas(getListaCuentas().get(i), null, null)));
-        }
-
-        return nodoRaiz;
-        //devolvemos el nodo raiz para que el controller pueda pasarlselo al treeview
     }
 }
