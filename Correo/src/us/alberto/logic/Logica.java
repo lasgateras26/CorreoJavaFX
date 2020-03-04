@@ -8,7 +8,6 @@ import javafx.scene.web.HTMLEditor;
 import us.alberto.models.EmailAccount;
 import us.alberto.models.EmailMessage;
 import us.alberto.models.EmailTreeItem;
-
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -23,19 +22,33 @@ public class Logica {
     private ObservableList<EmailMessage> listaMensajes = FXCollections.observableArrayList();
     private ObservableList<EmailAccount> listaCuentas = FXCollections.observableArrayList();
 
+    private Properties props;
     private Session session = null;
-    private Store store = null;
-
-    private TreeItem treeItem;
     private EmailTreeItem emailTreeItem;
-
-    private Logica() {
-    }
+    Store store = null;
 
     public static Logica getInstance() {
         if (INSTANCE == null)
             INSTANCE = new Logica();
         return INSTANCE;
+    }
+
+    public Logica() {
+        props.put("mail.smtp.user", "username");
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "25");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.EnableSSL.enable", "true");
+
+        props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        props.setProperty("mail.smtp.socketFactory.fallback", "false");
+        props.setProperty("mail.smtp.port", "465");
+        props.setProperty("mail.smtp.socketFactory.port", "465");
+
+        listaCuentas = FXCollections.observableArrayList();
+        listaMensajes = FXCollections.observableArrayList();
+        emailTreeItem = new EmailTreeItem("", null, null);
     }
 
     public void getMessage(String email, String password) {
@@ -120,12 +133,6 @@ public class Logica {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public void rootcreate(EmailAccount cuenta){
-        Folder f = cargarEmail(cuenta);
-        treeItem.getChildren().add(crearTreeView(cuenta, f));
-
     }
 
     public String getMessageContent(EmailMessage correo) throws MessagingException {
@@ -222,5 +229,66 @@ public class Logica {
             }
         });
         return session;
+    }
+
+    public void borrarCuenta(EmailAccount emailAccount) {
+        listaCuentas.remove(emailAccount);
+        emailTreeItem = new EmailTreeItem("", null, null);
+        setAccounts();
+    }
+
+    public void setAccounts() {
+        for (EmailAccount emailAccount : listaCuentas) {
+            Folder f = loadMail(emailAccount);
+            emailTreeItem.getChildren().add(getTreeItems(emailAccount, f));
+        }
+    }
+
+    private Folder loadMail(EmailAccount mailAccount) {
+        try {
+            createSession(mailAccount);
+            store = session.getStore("imaps");
+            store.connect("imap.gmail.com", mailAccount.getEmail(), mailAccount.getPassword());
+            return store.getDefaultFolder();
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void createSession(EmailAccount mailAccount) {
+        session = null;
+        String cuenta = mailAccount.getEmail();
+        String pass = mailAccount.getPassword();
+        Authenticator auth = new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(cuenta, pass);
+            }
+        };
+        session = Session.getInstance(props, auth);
+    }
+
+    private EmailTreeItem getTreeItems(EmailAccount mailAccount, Folder folder) {
+        try {
+            EmailTreeItem root = new EmailTreeItem(mailAccount.getEmail(), mailAccount, folder);
+            getFolder(root.getFolder().list(), root, mailAccount);
+            root.setExpanded(true);
+            return root;
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void getFolder(Folder[] folders, EmailTreeItem item, EmailAccount mailAccount) throws MessagingException {
+        for (Folder folder : folders) {
+            EmailTreeItem treeItem = new EmailTreeItem(folder.getName(), mailAccount, folder);
+            item.getChildren().add(treeItem);
+            if (folder.getType() == Folder.HOLDS_FOLDERS) {
+                treeItem.setExpanded(true);
+                getFolder(folder.list(), treeItem, mailAccount);
+            }
+        }
     }
 }

@@ -5,36 +5,25 @@ import javax.mail.Folder;
 
 public class EmailTreeItem extends TreeItem<String> {
 
-    private String name;
+    private String nombre;
     private EmailAccount emailAccount;
     private Folder folder;
 
-    public EmailTreeItem(String name, EmailAccount emailAccount, Folder folder) {
-        this.name = name;
-        this.emailAccount = emailAccount;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public EmailTreeItem(String name, EmailAccount mailAccount, Folder folder){
+        super(name);
+        nombre = name;
+        this.emailAccount = mailAccount;
+        this.folder = folder;
     }
 
     public Folder getFolder() {
         return folder;
     }
-
     public void setFolder(Folder folder) {
         this.folder = folder;
     }
 
-    public EmailAccount getEmailAccount() {
+    public EmailAccount getEmailAccount(){
         return emailAccount;
-    }
-
-    public void setEmailAccount(EmailAccount emailAccount) {
-        this.emailAccount = emailAccount;
     }
 }
