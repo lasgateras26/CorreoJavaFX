@@ -2,18 +2,21 @@ package us.alberto.models;
 
 import javafx.scene.control.TreeItem;
 import javax.mail.Folder;
+import javax.mail.Store;
 
 public class EmailTreeItem extends TreeItem<String> {
 
     private String nombre;
     private EmailAccount emailAccount;
     private Folder folder;
+    private Store store;
 
-    public EmailTreeItem(String name, EmailAccount mailAccount, Folder folder){
-        super(name);
-        nombre = name;
-        this.emailAccount = mailAccount;
+    public EmailTreeItem(EmailAccount emailAccount, String nombre, Folder folder, Store store){
+        super(nombre);
+        this.emailAccount = emailAccount;
+        this.nombre = nombre;
         this.folder = folder;
+        this.store = store;
     }
 
     public Folder getFolder() {

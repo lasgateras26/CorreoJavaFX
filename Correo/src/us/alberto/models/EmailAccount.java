@@ -1,7 +1,5 @@
 package us.alberto.models;
 
-import javafx.scene.control.Alert;
-
 import javax.mail.Session;
 import javax.mail.Store;
 

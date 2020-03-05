@@ -6,12 +6,16 @@
 <?import javafx.scene.layout.AnchorPane?>
 
 
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="us.alberto.views.CuentasController">
    <children>
       <TableView fx:id="tableViewCuentas" layoutX="31.0" layoutY="34.0" prefHeight="286.0" prefWidth="542.0" AnchorPane.bottomAnchor="94.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
         <columns>
-          <TableColumn prefWidth="75.0" text="C1" />
-          <TableColumn prefWidth="75.0" text="C2" />
+          <TableColumn prefWidth="200.0" text="Cuentas">
+              <cellValueFactory>
+                  <PropertyValueFactory property="email"/>
+              </cellValueFactory>
+          </TableColumn>
         </columns>
       </TableView>
       <Button fx:id="btnAñadirCuenta" layoutX="218.0" layoutY="333.0" mnemonicParsing="false" onAction="#añadirCuenta" text="Añadir" AnchorPane.bottomAnchor="42.0" AnchorPane.leftAnchor="200.0" />

@@ -14,7 +14,7 @@ public class Launcher extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("views/PantallaPrincipal.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("views/PantallaCorreo.fxml"));
         stage.setTitle("Iniciar Sesión");
         stage.setScene(new Scene(root, 700, 400));
         stage.show();

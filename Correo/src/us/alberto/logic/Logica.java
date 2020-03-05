@@ -193,4 +193,48 @@ public class Logica {
     public void borrarCuenta(EmailAccount emailAccount){
         listaCuentas.remove(emailAccount);
     }
+
+    public EmailTreeItem cargarCarpetas() throws MessagingException {
+        EmailTreeItem nodoPadre = new EmailTreeItem(null, null, null, null);
+        for (int i = 0; i < listaCuentas.size(); i++) {
+            EmailTreeItem itemCuenta = new EmailTreeItem(listaCuentas.get(i), listaCuentas.get(i).getEmail(), null, listaCuentas.get(i).getStore());
+            nodoPadre.getChildren().add(itemCuenta);
+            try {
+                Folder[] vectorCarpetas = listaCuentas.get(i).getStore().getDefaultFolder().list();
+                itemCuenta.setExpanded(true);
+                llenarCarpetas(vectorCarpetas, itemCuenta, listaCuentas.get(i));
+            } catch (MessagingException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        return nodoPadre;
+    }
+
+    public void llenarCarpetas(Folder[] vectorCarpetas, EmailTreeItem itemCuenta, EmailAccount emailAccount) throws MessagingException {
+        for (Folder folder : vectorCarpetas) {
+            EmailTreeItem item = new EmailTreeItem(emailAccount, folder.getName(), folder, emailAccount.getStore());
+            itemCuenta.getChildren().add(item);
+            if (folder.list().length > 0) {
+                llenarCarpetas(folder.list(), itemCuenta, emailAccount);
+            }
+        }
+
+    }
+
+    public void borrarEmail(EmailMessage emailMessage, Folder folder, EmailAccount emailAccount) {
+        Message mensaje = emailMessage.getMensaje();
+        try {
+            if (!folder.getName().equals("Papelera")) {
+                Folder papelera = folder.getStore().getDefaultFolder().getFolder("[Gmail]/Papelera");
+                folder.copyMessages(new Message[]{mensaje}, papelera);
+                folder.close(true);
+            } else {
+                mensaje.setFlag(Flags.Flag.DELETED, true);
+                folder.close(true);
+            }
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
 }
